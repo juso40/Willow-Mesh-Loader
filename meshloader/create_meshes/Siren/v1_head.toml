@@ -1,0 +1,4 @@
+source = "v1_head.glb"
+name = "v1head"
+kind = "skeletal"
+scale = 100.0

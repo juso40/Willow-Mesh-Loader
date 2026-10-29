@@ -1,0 +1,3 @@
+source = "largespoon.glb"
+name = "largespoon"
+kind = "static"

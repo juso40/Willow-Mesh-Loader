@@ -1,0 +1,8 @@
+native/target/
+__pycache__/
+.zed/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+*.pyd
+*.zip
