@@ -3,6 +3,7 @@ __pycache__/
 .zed/
 .mypy_cache/
 .ruff_cache/
+meshloader/create_meshes/*
 *.pyc
 *.pyd
 *.zip
