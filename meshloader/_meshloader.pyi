@@ -7,18 +7,115 @@ Load and preview signature-discovered UE3 meshes through native Python objects.
 import builtins
 import typing
 __all__ = [
+    "AnimationClipInfo",
+    "AnimationInspection",
+    "AnimationOutcome",
     "FragmentRange",
-    "GestaltOutcome",
+    "GestaltAppendOutcome",
     "MeshBounds",
     "MeshOutcome",
+    "MeshStatistics",
+    "PreparedAnimationSet",
+    "PreparedMesh",
+    "ReferenceBone",
+    "SectionVertexRange",
+    "SkeletalChunkInfo",
+    "SkeletalInspection",
+    "SkeletalLayout",
+    "Source",
+    "SourceAnimation",
+    "SourceCatalog",
+    "SourceFragmentRange",
+    "SourceIdentities",
+    "SourceIdentity",
+    "SourceMesh",
+    "SourceMeshIdentity",
+    "SourceScene",
+    "SourceSection",
+    "SourceSelection",
+    "SourceSkin",
+    "StaticInspection",
+    "StaticLayout",
     "get_reference_skeleton",
-    "inspect_mesh",
-    "load_gestalt_mesh",
-    "load_into_skeletal_mesh",
-    "load_into_static_mesh",
-    "load_mesh",
-    "reload_mesh",
 ]
+
+@typing.final
+class AnimationClipInfo:
+    r"""
+    Prepared absolute clip identity and endpoint-inclusive sample grid.
+    """
+    @property
+    def source_animation_id(self) -> builtins.int:
+        r"""
+        Source-local animation ID, not a frame or track index.
+        """
+    @property
+    def name(self) -> builtins.str:
+        r"""
+        Authored clip name retained as SequenceName.
+        """
+    @property
+    def duration(self) -> builtins.float:
+        r"""
+        Positive playback duration in seconds.
+        """
+    @property
+    def frame_count(self) -> builtins.int:
+        r"""
+        Uniform samples, including both endpoints for a nonzero source duration.
+        """
+    @property
+    def effective_sample_rate(self) -> typing.Optional[builtins.float]:
+        r"""
+        Returns the effective endpoint-inclusive rate, or none for a single pose.
+        """
+
+@typing.final
+class AnimationInspection:
+    r"""
+    Prepared source animation metadata without copied track samples.
+    """
+    @property
+    def source(self) -> SourceSelection:
+        r"""
+        Selected skin, scene and effective bone-frame options.
+        """
+    @property
+    def requested_sample_rate(self) -> builtins.float:
+        r"""
+        Requested sampling rate, not necessarily the exact per-clip rate.
+        """
+    @property
+    def bones(self) -> builtins.list[ReferenceBone]:
+        r"""
+        Source sample-track order, before loaded-target track binding.
+        """
+    @property
+    def clips(self) -> builtins.list[AnimationClipInfo]:
+        r"""
+        Selected clip descriptors in document order.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Nonfatal source preparation diagnostics.
+        """
+
+@typing.final
+class AnimationOutcome:
+    r"""
+    Created or replaced animation asset identity and source-import warnings.
+    """
+    @property
+    def path(self) -> builtins.str:
+        r"""
+        Canonical AnimSet or AnimSequence object path.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Nonfatal reference-pose and sampled-animation diagnostics.
+        """
 
 @typing.final
 class FragmentRange:
@@ -31,9 +128,9 @@ class FragmentRange:
         Original fragment identity.
         """
     @property
-    def material_index(self) -> builtins.int:
+    def material_slot(self) -> builtins.int:
         r"""
-        Template material-slot ordinal.
+        Destination material-slot ordinal.
         """
     @property
     def first_index(self) -> builtins.int:
@@ -41,7 +138,7 @@ class FragmentRange:
         Offset into the final index buffer.
         """
     @property
-    def triangles(self) -> builtins.int:
+    def triangle_count(self) -> builtins.int:
         r"""
         Triangle count in this range.
         """
@@ -52,19 +149,24 @@ class FragmentRange:
         """
 
 @typing.final
-class GestaltOutcome:
+class GestaltAppendOutcome:
     r"""
-    Fresh Gestalt mesh and the layout required to construct its reflected definition.
+    Appended master identity and final ranges for the newly added fragments.
     """
     @property
-    def mesh(self) -> MeshOutcome:
+    def path(self) -> builtins.str:
         r"""
-        Created mesh identity and warnings.
+        Canonical master mesh path.
         """
     @property
     def parts(self) -> builtins.list[FragmentRange]:
         r"""
-        Final fragment ranges and bounds.
+        New fragment ranges in the extended master index and material spaces.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Nonfatal source-import diagnostics.
         """
 
 @typing.final
@@ -73,12 +175,12 @@ class MeshBounds:
     Local-space box and sphere bounds.
     """
     @property
-    def origin(self) -> builtins.list[builtins.float]:
+    def origin(self) -> tuple[builtins.float, builtins.float, builtins.float]:
         r"""
         Box and sphere center.
         """
     @property
-    def box_extent(self) -> builtins.list[builtins.float]:
+    def box_extent(self) -> tuple[builtins.float, builtins.float, builtins.float]:
         r"""
         Box half extents.
         """
@@ -104,38 +206,685 @@ class MeshOutcome:
         Nonfatal source-import diagnostics.
         """
 
-def get_reference_skeleton(path: builtins.str) -> list:
+@typing.final
+class MeshStatistics:
+    r"""
+    Portable preparation counts, not total process or GPU memory usage.
+    """
+    @property
+    def imported_vertex_count(self) -> builtins.int:
+        r"""
+        Vertex count after importer seam handling and deduplication.
+        """
+    @property
+    def vertex_count(self) -> builtins.int:
+        r"""
+        Encoded vertex count including GPU chunk-boundary duplication.
+        """
+    @property
+    def triangle_count(self) -> builtins.int:
+        r"""
+        Encoded triangle count.
+        """
+    @property
+    def primitive_count(self) -> builtins.int:
+        r"""
+        Consumed source primitive count before material grouping.
+        """
+    @property
+    def encoded_render_bytes(self) -> builtins.int:
+        r"""
+        Primary encoded render streams, excluding native records and retained storage.
+        """
+
+@typing.final
+class PreparedAnimationSet:
+    r"""
+    Validated source animation samples without destination UObject ownership.
+    """
+    @property
+    def clips(self) -> builtins.list[AnimationClipInfo]:
+        r"""
+        Returns ordered clip descriptors without copying reference bones or track samples.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Returns nonfatal preparation diagnostics.
+        """
+    @property
+    def metadata(self) -> AnimationInspection:
+        r"""
+        Returns source-order reference metadata without exposing sampled tracks.
+        """
+    def check_mesh(self, mesh: builtins.str) -> None:
+        r"""
+        Checks a loaded target skeleton before Python constructs animation objects.
+        """
+    def populate_new(self, path: builtins.str, sequences: typing.Sequence[builtins.str], mesh: builtins.str) -> AnimationOutcome:
+        r"""
+        Populates an empty AnimSet and its empty children in prepared document order.
+        """
+    def load_into(self, path: builtins.str, mesh: builtins.str) -> AnimationOutcome:
+        r"""
+        Replaces one existing sequence without managing live playback users.
+        """
+
+@typing.final
+class PreparedMesh:
+    r"""
+    Validated mesh payload with separate construction hints and inspection snapshots.
+    """
+    @property
+    def class_name(self) -> typing.Literal["StaticMesh", "SkeletalMesh"]:
+        r"""
+        Returns the exact engine class without materializing an inspection snapshot.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Returns source preparation warnings without copying geometry metadata.
+        """
+    @property
+    def metadata(self) -> StaticInspection | SkeletalInspection:
+        r"""
+        Returns an independent descriptive snapshot, excluding detailed GPU layout.
+        """
+    @property
+    def layout(self) -> StaticLayout | SkeletalLayout:
+        r"""
+        Returns explicit encoded layout diagnostics without exposing packed buffers.
+        """
+    @property
+    def source_fragments(self) -> builtins.list[SourceFragmentRange]:
+        r"""
+        Returns ordinary source ranges with source-section ordinals, not template slots.
+        Bound Gestalt payloads expose final ranges through parts instead.
+        """
+    @property
+    def parts(self) -> builtins.list[FragmentRange]:
+        r"""
+        Returns final template-bound Gestalt ranges, or an empty list for ordinary payloads.
+        """
+    def populate_new(self, path: builtins.str) -> MeshOutcome:
+        r"""
+        Installs fresh storage into an empty exact-class destination without rollback.
+        """
+    def load_into_gestalt(self, path: builtins.str) -> MeshOutcome:
+        r"""
+        Replaces a Gestalt master through the explicit paired-definition operation.
+        """
+    def append_gestalt(self, path: builtins.str) -> GestaltAppendOutcome:
+        r"""
+        Appends to current native master geometry without changing existing ranges or slots.
+        """
+    def reload(self, path: builtins.str) -> MeshOutcome:
+        r"""
+        Replaces library-owned geometry while retaining destination identity.
+        """
+    def load_into(self, path: builtins.str) -> MeshOutcome:
+        r"""
+        Replaces existing geometry under the skeleton and collision restrictions.
+        """
+
+@typing.final
+class ReferenceBone:
+    r"""
+    Reference-pose bone in the containing snapshot skeleton order.
+    """
+    @property
+    def name(self) -> builtins.str:
+        r"""
+        Native-compatible bone name.
+        """
+    @property
+    def parent(self) -> typing.Optional[builtins.int]:
+        r"""
+        Parent bone ordinal, or none for the root.
+        """
+    @property
+    def translation(self) -> tuple[builtins.float, builtins.float, builtins.float]:
+        r"""
+        Parent-relative translation in engine units.
+        """
+    @property
+    def rotation_xyzw(self) -> tuple[builtins.float, builtins.float, builtins.float, builtins.float]:
+        r"""
+        Parent-relative unit quaternion in XYZW order.
+        """
+
+@typing.final
+class SectionVertexRange:
+    r"""
+    Checked static section vertex bounds for explicit diagnostics.
+    """
+    @property
+    def min_vertex_index(self) -> builtins.int:
+        r"""
+        Minimum referenced encoded vertex ordinal.
+        """
+    @property
+    def max_vertex_index(self) -> builtins.int:
+        r"""
+        Maximum referenced encoded vertex ordinal.
+        """
+
+@typing.final
+class SkeletalChunkInfo:
+    r"""
+    Contiguous encoded skin range with a GPU-local bone map.
+    """
+    @property
+    def base_vertex(self) -> builtins.int:
+        r"""
+        First vertex in the shared encoded vertex buffer.
+        """
+    @property
+    def vertex_count(self) -> builtins.int:
+        r"""
+        Vertices in this chunk.
+        """
+    @property
+    def first_index(self) -> builtins.int:
+        r"""
+        First triangle-list index element in this chunk.
+        """
+    @property
+    def triangle_count(self) -> builtins.int:
+        r"""
+        Consecutive triangles in this chunk.
+        """
+    @property
+    def palette(self) -> builtins.list[builtins.int]:
+        r"""
+        Local influence byte to containing inspection reference-bone ordinal.
+        """
+    @property
+    def max_bone_influences(self) -> builtins.int:
+        r"""
+        Largest nonzero quantized influence count in this chunk.
+        """
+
+@typing.final
+class SkeletalInspection:
+    r"""
+    Skeletal preparation snapshot in prepared or bound-template bone order.
+    """
+    @property
+    def source(self) -> SourceSelection:
+        r"""
+        Selected source and effective bone-frame options.
+        """
+    @property
+    def stats(self) -> MeshStatistics:
+        r"""
+        Portable geometry statistics.
+        """
+    @property
+    def bounds(self) -> MeshBounds:
+        r"""
+        Reference-pose geometry bounds, not arbitrary animated bounds.
+        """
+    @property
+    def source_sections(self) -> builtins.list[SourceSection]:
+        r"""
+        Source partitions, not the final chunk-split draw sections.
+        """
+    @property
+    def bones(self) -> builtins.list[ReferenceBone]:
+        r"""
+        Reference bones indexed by parents and layout palettes.
+        """
+    @property
+    def uv_channels(self) -> builtins.int:
+        r"""
+        Encoded UV channel count, between one and four.
+        """
+    @property
+    def max_bone_influences(self) -> builtins.int:
+        r"""
+        Largest quantized nonzero influence count.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Nonfatal source preparation diagnostics.
+        """
+    @property
+    def kind(self) -> typing.Literal["skeletal"]:
+        r"""
+        Returns the skeletal geometry discriminator.
+        """
+    @property
+    def class_name(self) -> typing.Literal["SkeletalMesh"]:
+        r"""
+        Returns the exact engine class used for fresh construction.
+        """
+
+@typing.final
+class SkeletalLayout:
+    r"""
+    Explicit GPU skinning layout diagnostics, not construction input.
+    """
+    @property
+    def index_size_bytes(self) -> builtins.int:
+        r"""
+        Encoded index width, either two or four bytes.
+        """
+    @property
+    def chunks(self) -> builtins.list[SkeletalChunkInfo]:
+        r"""
+        Stable contiguous GPU partitions.
+        """
+    @property
+    def weighted_bones(self) -> builtins.list[builtins.int]:
+        r"""
+        Sorted unique weighted reference-bone ordinals, not a GPU-local palette.
+        """
+
+@typing.final
+class Source:
+    r"""
+    Shared glTF/GLB document and lazily loaded, validated source buffers.
+    """
+    @property
+    def identities(self) -> SourceIdentities:
+        r"""
+        Returns lightweight identities without scene traversal or channel discovery.
+        """
+    def __new__(cls, path: builtins.str) -> Source:
+        r"""
+        Parses one source document without constructing engine objects.
+        """
+    def catalog(self) -> SourceCatalog:
+        r"""
+        Returns descriptive source-local identities without decoding asset payloads.
+        """
+    def material_slots(self, *, node: builtins.int, scene: builtins.int, kind: builtins.str = 'auto') -> builtins.list[typing.Optional[builtins.int]]:
+        r"""
+        Returns selected source material slots in first-use order without decoding buffers.
+        """
+    def prepare_mesh(self, *, node: builtins.int, scene: builtins.int, kind: builtins.str = 'auto', material: builtins.str = 'EngineMaterials.DefaultMaterial', scale: builtins.float = 100.0, materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None, umodel: builtins.bool = True) -> PreparedMesh:
+        r"""
+        Prepares a selected mesh node in its selected scene.
+        `umodel` defaults to PSK-workflow bone frames. False preserves glTF frames.
+        """
+    def prepare_animations(self, *, skin: builtins.int, clips: typing.Sequence[builtins.int], scene: builtins.int, scale: builtins.float = 100.0, sample_rate: builtins.float = 30.0, umodel: builtins.bool = True) -> PreparedAnimationSet:
+        r"""
+        Prepares selected clips for a selected skin and scene without decoding geometry.
+        `umodel` defaults to PSK-workflow bind and sampled-pose conversion.
+        """
+    def prepare_gestalt_parts(self, *, nodes: typing.Sequence[builtins.int], scene: builtins.int, template: typing.Optional[builtins.str] = None, material: builtins.str = 'EngineMaterials.DefaultMaterial', materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None, scale: builtins.float = 100.0, umodel: builtins.bool = True) -> PreparedMesh:
+        r"""
+        Prepares selected Gestalt nodes, using authored node names for untagged fragments.
+        Independent sources retain their skeleton when no template is supplied.
+        """
+    def prepare_gestalt(self, template: builtins.str, fragment_names: typing.Sequence[builtins.str], materials: typing.Sequence[builtins.str], material_slots: typing.Sequence[builtins.int], uv_channels: builtins.int, *, node: builtins.int, scene: builtins.int, scale: builtins.float = 100.0, umodel: builtins.bool = True) -> PreparedMesh:
+        r"""
+        Prepares and template-binds a selected fully tagged Gestalt mesh node.
+        `umodel` defaults to PSK-workflow bone frames. False preserves glTF frames.
+        """
+
+@typing.final
+class SourceAnimation:
+    r"""
+    Unsampled animation identity and candidate associations.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Document animation index.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional authored animation name.
+        """
+    @property
+    def target_nodes(self) -> builtins.list[builtins.int]:
+        r"""
+        Distinct targeted glTF node IDs.
+        """
+    @property
+    def skin_ids(self) -> builtins.list[builtins.int]:
+        r"""
+        Candidate skins, not proof of playback compatibility.
+        """
+
+@typing.final
+class SourceCatalog:
+    r"""
+    Detailed source discovery without geometry or animation decoding.
+    """
+    @property
+    def default_scene(self) -> typing.Optional[builtins.int]:
+        r"""
+        Authored default scene, never an implicit selection.
+        """
+    @property
+    def scenes(self) -> builtins.list[SourceScene]:
+        r"""
+        Descriptive scenes.
+        """
+    @property
+    def meshes(self) -> builtins.list[SourceMesh]:
+        r"""
+        Descriptive mesh instances.
+        """
+    @property
+    def skins(self) -> builtins.list[SourceSkin]:
+        r"""
+        Descriptive reference skeletons.
+        """
+    @property
+    def animations(self) -> builtins.list[SourceAnimation]:
+        r"""
+        Descriptive unsampled clips.
+        """
+
+@typing.final
+class SourceFragmentRange:
+    r"""
+    Tagged source range before live-template material binding.
+    """
+    @property
+    def name(self) -> builtins.str:
+        r"""
+        Authored fragment identity.
+        """
+    @property
+    def source_section(self) -> builtins.int:
+        r"""
+        Ordinal into the containing source_sections collection.
+        """
+    @property
+    def first_index(self) -> builtins.int:
+        r"""
+        First triangle-list index element.
+        """
+    @property
+    def triangle_count(self) -> builtins.int:
+        r"""
+        Consecutive triangles in this range.
+        """
+    @property
+    def bounds(self) -> MeshBounds:
+        r"""
+        Bounds of the entire named fragment across all of its ranges.
+        """
+
+@typing.final
+class SourceIdentities:
+    r"""
+    Lightweight selection categories without hierarchy or channel discovery.
+    """
+    @property
+    def scenes(self) -> builtins.list[SourceIdentity]:
+        r"""
+        Scene identities in document order.
+        """
+    @property
+    def meshes(self) -> builtins.list[SourceMeshIdentity]:
+        r"""
+        Mesh-node identities in document order.
+        """
+    @property
+    def skins(self) -> builtins.list[SourceIdentity]:
+        r"""
+        Skin identities in document order.
+        """
+    @property
+    def animations(self) -> builtins.list[SourceIdentity]:
+        r"""
+        Animation identities in document order.
+        """
+
+@typing.final
+class SourceIdentity:
+    r"""
+    Source-local identity with an optional authored label.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Zero-based document index, not a persistent asset identifier.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Authored name, which may be missing or duplicated.
+        """
+
+@typing.final
+class SourceMesh:
+    r"""
+    Descriptive mesh-node identity and shared geometry associations.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Document node index.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional selectable node name.
+        """
+    @property
+    def mesh_id(self) -> builtins.int:
+        r"""
+        Shared glTF geometry-definition ID.
+        """
+    @property
+    def mesh_name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional geometry label, not a node selector.
+        """
+    @property
+    def skin_id(self) -> typing.Optional[builtins.int]:
+        r"""
+        Associated source skin, if present.
+        """
+    @property
+    def scene_ids(self) -> builtins.list[builtins.int]:
+        r"""
+        Scenes containing this node, not ambiguity-breaking selectors.
+        """
+    @property
+    def primitive_material_ids(self) -> builtins.list[typing.Optional[builtins.int]]:
+        r"""
+        Source material IDs in primitive order, not engine slots.
+        """
+
+@typing.final
+class SourceMeshIdentity:
+    r"""
+    Lightweight selectable mesh-node identity.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Document node index, not a mesh-definition index.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional authored node name.
+        """
+    @property
+    def skin_id(self) -> typing.Optional[builtins.int]:
+        r"""
+        Associated source skin, or none for static geometry.
+        """
+
+@typing.final
+class SourceScene:
+    r"""
+    Descriptive scene identity and source root nodes.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Document scene index.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional authored scene name.
+        """
+    @property
+    def roots(self) -> builtins.list[builtins.int]:
+        r"""
+        Root glTF node IDs, not reference-bone ordinals.
+        """
+
+@typing.final
+class SourceSection:
+    r"""
+    Source material partition before skeletal draw-section splitting.
+    """
+    @property
+    def source_material(self) -> typing.Optional[builtins.int]:
+        r"""
+        Original glTF material ID, or none for unassigned faces.
+        """
+    @property
+    def first_index(self) -> builtins.int:
+        r"""
+        Offset measured in index elements, not bytes.
+        """
+    @property
+    def triangle_count(self) -> builtins.int:
+        r"""
+        Consecutive triangles in this source partition.
+        """
+
+@typing.final
+class SourceSelection:
+    r"""
+    Selected-source provenance without retaining its document or buffers.
+    """
+    @property
+    def path(self) -> builtins.str:
+        r"""
+        Canonical source filesystem path at opening.
+        """
+    @property
+    def scene(self) -> SourceIdentity:
+        r"""
+        Selected source scene.
+        """
+    @property
+    def node(self) -> typing.Optional[SourceIdentity]:
+        r"""
+        Selected mesh node, absent for multi-node Gestalt or geometry-free animations.
+        """
+    @property
+    def skin(self) -> typing.Optional[SourceIdentity]:
+        r"""
+        Selected source skin when applicable.
+        """
+    @property
+    def scale(self) -> builtins.float:
+        r"""
+        Effective source-to-engine unit multiplier.
+        """
+    @property
+    def bone_frames(self) -> typing.Optional[builtins.str]:
+        r"""
+        Applied skeletal frame convention: psk or gltf, absent for static data.
+        """
+    @property
+    def template_mesh(self) -> typing.Optional[builtins.str]:
+        r"""
+        Loaded mesh used for Gestalt binding, if applicable.
+        """
+
+@typing.final
+class SourceSkin:
+    r"""
+    Descriptive skin identities without inverse-bind admission.
+    """
+    @property
+    def id(self) -> builtins.int:
+        r"""
+        Document skin index.
+        """
+    @property
+    def name(self) -> typing.Optional[builtins.str]:
+        r"""
+        Optional authored skin name.
+        """
+    @property
+    def joints(self) -> builtins.list[SourceIdentity]:
+        r"""
+        Source node identities in authored joint order.
+        """
+    @property
+    def has_inverse_binds(self) -> builtins.bool:
+        r"""
+        Accessor presence only, not a validation guarantee.
+        """
+
+@typing.final
+class StaticInspection:
+    r"""
+    Static preparation snapshot without an engine destination.
+    """
+    @property
+    def source(self) -> SourceSelection:
+        r"""
+        Selected source and effective conversion options.
+        """
+    @property
+    def stats(self) -> MeshStatistics:
+        r"""
+        Portable geometry statistics.
+        """
+    @property
+    def bounds(self) -> MeshBounds:
+        r"""
+        Incoming baked geometry bounds, not final expanded replacement bounds.
+        """
+    @property
+    def source_sections(self) -> builtins.list[SourceSection]:
+        r"""
+        Source material partitions in engine material-slot order.
+        """
+    @property
+    def warnings(self) -> builtins.list[builtins.str]:
+        r"""
+        Nonfatal source preparation diagnostics.
+        """
+    @property
+    def kind(self) -> typing.Literal["static"]:
+        r"""
+        Returns the static geometry discriminator.
+        """
+    @property
+    def class_name(self) -> typing.Literal["StaticMesh"]:
+        r"""
+        Returns the exact engine class used for fresh construction.
+        """
+
+@typing.final
+class StaticLayout:
+    r"""
+    Explicit static index layout diagnostics.
+    """
+    @property
+    def index_size_bytes(self) -> builtins.int:
+        r"""
+        Encoded index width, currently two bytes.
+        """
+    @property
+    def section_vertex_ranges(self) -> builtins.list[SectionVertexRange]:
+        r"""
+        Checked vertex bounds in source-section order.
+        """
+
+def get_reference_skeleton(path: builtins.str) -> builtins.list[ReferenceBone]:
     r"""
     Return native-order reference bones from a loaded SkeletalMesh without mutation.
-    """
-
-def inspect_mesh(source: builtins.str, kind: builtins.str = 'auto', scale: builtins.float = 100.0) -> dict:
-    r"""
-    Preview a static or skeletal source without constructing engine objects.
-    """
-
-def load_gestalt_mesh(source: builtins.str, name: builtins.str, template: builtins.str, fragment_names: typing.Sequence[builtins.str], materials: typing.Sequence[builtins.str], material_slots: typing.Sequence[builtins.int], uv_channels: builtins.int, *, outer: builtins.str = 'Transient', scale: builtins.float = 100.0) -> GestaltOutcome:
-    r"""
-    Construct a fresh template-compatible Gestalt mesh with final fragment ranges and bounds.
-    """
-
-def load_into_skeletal_mesh(source: builtins.str, path: builtins.str, material: builtins.str = 'EngineMaterials.DefaultMaterial', scale: builtins.float = 100.0, materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None) -> MeshOutcome:
-    r"""
-    Load skinned geometry into an existing loaded mesh while preserving its matching skeleton.
-    """
-
-def load_into_static_mesh(source: builtins.str, path: builtins.str, material: builtins.str = 'EngineMaterials.DefaultMaterial', scale: builtins.float = 100.0, materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None) -> MeshOutcome:
-    r"""
-    Load static geometry into an existing loaded mesh while preserving identity and collision.
-    """
-
-def load_mesh(source: builtins.str, name: builtins.str, kind: builtins.str = 'auto', outer: builtins.str = 'Transient', material: builtins.str = 'EngineMaterials.DefaultMaterial', scale: builtins.float = 100.0, materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None) -> MeshOutcome:
-    r"""
-    Create a mesh and return its identity and import warnings.
-    """
-
-def reload_mesh(source: builtins.str, path: builtins.str, kind: builtins.str = 'auto', material: builtins.str = 'EngineMaterials.DefaultMaterial', scale: builtins.float = 100.0, materials: typing.Optional[typing.Mapping[typing.Optional[builtins.int], builtins.str]] = None) -> MeshOutcome:
-    r"""
-    Replace library-owned geometry while preserving object identity and skeletal rest frames.
     """
 

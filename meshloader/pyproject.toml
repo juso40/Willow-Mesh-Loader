@@ -3,7 +3,7 @@ name = "meshloader"
 version = "0.1"
 authors = [{ name = "juso" }]
 description = """\
-Runtime mesh loading for Borderlands 2: static and skeletal meshes from .glb/gltf files
+Runtime glTF/GLB loading for Borderlands 2: static meshes, skeletal meshes, animations and Gestalt assets
 """
 
 
