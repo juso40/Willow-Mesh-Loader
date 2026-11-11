@@ -7,12 +7,11 @@ and edit Gestalt weapon masters.
 A [pyunrealsdk](https://bl-sdk.github.io/willow2-mod-db/) mod.
 
 > [!NOTE] 
-> 
-> | [![ai:r](https://github.com/NamtaoProductions/0rwx.com/blob/main/static/32x32/AI-R-32x32.png?raw=true)](https://0rwx.com) [meshloader/](meshloader/) | AI:R I've written the code myself, but used LLMs for architecture suggestions, bug fixes, improvements, and for writing most docs. |
-> | ----------------------- |  :------------------------------------------------------------------------------------------------ |
 >
-> | [![ai:w](https://github.com/NamtaoProductions/0rwx.com/blob/main/static/32x32/AI-W-32x32.png?raw=true)](https://0rwx.com) [native/](native/) | AI:W I've used LLMs for reverse engineering the game and generating large parts of the code. I've read and tested all code.  |
-> | ----------------------- |  ------------------------------------------------------------------------------------------------ |
+> | 0rwx | source | notes  |
+> | :----------------------- | :----------------------- | :------------------------------------------------------------------------------------------------ |
+> | [![ai:r](https://github.com/NamtaoProductions/0rwx.com/blob/main/static/32x32/AI-R-32x32.png?raw=true)](https://0rwx.com) | [meshloader/](meshloader/) | AI:R I've written the code myself, but used LLMs for architecture suggestions, bug fixes, improvements, and for writing most docs. |
+> | [![ai:w](https://github.com/NamtaoProductions/0rwx.com/blob/main/static/32x32/AI-W-32x32.png?raw=true)](https://0rwx.com) | [native/](native/) | AI:W I've used LLMs for reverse engineering the game and generating large parts of the code. I've read and tested all code.  |
 
 
 
