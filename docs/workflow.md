@@ -5,7 +5,7 @@
 UEViewer, or umodel as we will call it from now on, can show and export the assets in BL2's `.upk` archives.  
 There is quite a lot of documentation already online on how to use this tool, so go and look it up if you need any specific help.  
 
-For the recommended workflow you want to use its `gltf/glb` export format for meshes.  
+For the recommended workflow you want to use its `psk/psa` export format for meshes, which is the default mode.  
 
 The base games `.upk` are stored in `Borderlands 2/WillowGame/CookedPCConsole/*`.  
 Some of the more interesting packages, may be the vault hunters:
@@ -16,7 +16,7 @@ Some of the more interesting packages, may be the vault hunters:
 
 Or their Heads, which roughly follow the pattern `CD_<class>_Head_<class><number>_SF.upk`.
 
-After exporting all the assets as `gltf` you can start importing them in [Blender](#Blender)
+After exporting all the assets as `psk` you can start importing them in [Blender](#Blender)
 
 ## Blender
 [https://www.blender.org/](https://www.blender.org/)
@@ -25,18 +25,22 @@ If this is your first time working with blender, close it and watch some tutoria
 
 Now for real, after starting blender, delete the default cube. And everything else… 
 
-We start by importing a `gltf/glb` from the steps before.  
+### Import
+We start by importing a `psk` from the steps before.  
 For that:  
-`File > Import > glTF 2.0 (.glb/.gltf)`  
-Do not change any of blenders default import settings, they are fine for umodel exported meshes.
+`File > Import > Unreal PSK (.psk/.pskx)`  
+> [!note]
+>
+> In the import menu you may want to change the Transform > Scale to `0.01` and the Armature > Bone Length to `4m`.
+> After that select the armature and apply its scale and transform, then select its mesh and apply its scale and transform.
 
-> [!NOTE]
-> Currently we only support a single mesh or a single skinned mesh per exported glb.
+### Editing
 
-While you can edit essentially everything inside blender, you do want to keep in most cases the same armatures and vertex groups.
+#### Static Meshes
+For static meshes there nothing special to know. Just create or edit a mesh, UV unwrap it as you like, and give it as many material slots as required.
 
-When rigging a mesh you want to make sure all vertices are properly weight painted or else it wont import in game.
-
+#### Skeletal Meshes
+You can again, change almost anything you like. But you should keep the games rest pose, bones and vertex groups in tact. You can add new bones and new vertex groups if you like, but they will be ignored in the games animations. 
 
 
 ### Export a StaticMesh
@@ -93,6 +97,8 @@ So you could simply create a folder for your new mesh, where you place the expor
 The `.toml` should have the following structure:
 ```toml
 source = "coolMesh.glb"  # relative to this toml
+node = "BlenderMeshName" 
+scene = "Scene"
 name = "MyCoolMesh"  # This will create Static/SkeletalMesh'Transient.MyCoolMesh'
 kind = "auto"  # either, auto, static or skeletal
 scale = 100.0  # if you followed everything so far, keep it at 100
