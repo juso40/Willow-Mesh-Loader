@@ -5,7 +5,14 @@ from ._commands import meshloader_command
 from .assets.animations import inspect_animations, load_animations, load_into_animation
 from .assets.gestalt.definition import GestaltAsset
 from .assets.gestalt.inspection import GestaltFragmentInfo, GestaltInspection
-from .assets.gestalt.loading import append_gestalt, inspect_gestalt, load_gestalt, load_into_gestalt, prepare_gestalt
+from .assets.gestalt.loading import (
+    append_gestalt,
+    inspect_gestalt,
+    load_gestalt,
+    load_into_gestalt,
+    prepare_gestalt,
+    update_gestalt,
+)
 from .assets.meshes import inspect, load, reload
 from .assets.skeletal_mesh import (
     get_reference_skeleton,
@@ -18,9 +25,6 @@ from .manifests import MeshManifest, load_manifest
 from .objects import copy_sockets
 from .prepared import PreparedAnimationSet, PreparedGestalt, PreparedMesh
 from .sources import Source, open_source
-
-inspect_gltf = inspect_static_mesh
-inspect_skeletal_gltf = inspect_skeletal_mesh
 
 __all__ = [
     "GestaltAsset",
@@ -39,8 +43,6 @@ __all__ = [
     "inspect",
     "inspect_animations",
     "inspect_gestalt",
-    "inspect_gltf",
-    "inspect_skeletal_gltf",
     "inspect_skeletal_mesh",
     "inspect_static_mesh",
     "load",
@@ -57,6 +59,7 @@ __all__ = [
     "open_source",
     "prepare_gestalt",
     "reload",
+    "update_gestalt",
 ]
 
 # The factory discovers package metadata from its calling module.

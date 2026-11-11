@@ -2,13 +2,12 @@
 
 from collections.abc import Sequence
 from math import isfinite
-from re import fullmatch
 from struct import pack, unpack
 from typing import Protocol, cast
 
 from .models import MaterialMapping, MeshKind
 
-_MAX_NAME_UTF16_UNITS = 1023
+_INVALID_OBJECT_NAME_CHARACTERS = frozenset(" !\"#$%&'()*+,./:;<=>?@[\\]^`{|}~\n\r\t\0")
 
 
 def target(name: str, outer: str | None) -> tuple[str, str]:
@@ -31,17 +30,16 @@ def target(name: str, outer: str | None) -> tuple[str, str]:
 
 
 def object_name(name: str) -> str:
-    """Require a bounded ASCII identifier that is not the reserved None name."""
-    if not isinstance(name, str):
-        raise TypeError("name must be a string")
+    """Require an engine-valid object name that fits a native FName."""
     if (
-        fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) is None
-        or len(name) > _MAX_NAME_UTF16_UNITS
+        not name
+        or name != name.strip()
         or name.casefold() == "none"
+        or _INVALID_OBJECT_NAME_CHARACTERS.intersection(name)
     ):
         raise ValueError(
-            "name must start with a letter, contain only ASCII letters/digits/underscores, "
-            "fit 1023 characters, and not be None",
+            "name must be a non-None object name without engine-reserved characters "
+            "or surrounding whitespace and fit 1023 UTF-16 units",
         )
     return name
 

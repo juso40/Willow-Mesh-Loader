@@ -1,0 +1,12 @@
+[package]
+name = "mesh-runtime"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+unrealsdk-rs.workspace = true
+
+
+[lints]
+workspace = true

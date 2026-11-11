@@ -259,7 +259,8 @@ class PreparedAnimationSet:
         """
     def check_mesh(self, mesh: builtins.str) -> None:
         r"""
-        Checks a loaded target skeleton before Python constructs animation objects.
+        Checks target bone counts, names and direct parents before object construction.
+        Reference poses may differ without correction of sampled local poses.
         """
     def populate_new(self, path: builtins.str, sequences: typing.Sequence[builtins.str], mesh: builtins.str) -> AnimationOutcome:
         r"""
@@ -313,6 +314,11 @@ class PreparedMesh:
     def load_into_gestalt(self, path: builtins.str) -> MeshOutcome:
         r"""
         Replaces a Gestalt master through the explicit paired-definition operation.
+        """
+    def update_gestalt(self, path: builtins.str, *, preserve_materials: builtins.bool = True) -> MeshOutcome:
+        r"""
+        Updates existing fragment identities and rebuilds detached component data from saved selections.
+        The path identifies the loaded Gestalt definition, not its master mesh.
         """
     def append_gestalt(self, path: builtins.str) -> GestaltAppendOutcome:
         r"""

@@ -2,7 +2,6 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meshloader import validate
 from meshloader.defaults import DEFAULT_SAMPLE_RATE, DEFAULT_SCALE
 from meshloader.models import AnimationInspection
 from meshloader.sources import Source, open_source
@@ -58,14 +57,13 @@ def load_animations(  # noqa: PLR0913
 ) -> UObject:
     """Create an AnimSet and populate selected clips.
 
-    Bone names, parent relationships and reference poses must match.
-    Different bone-array ordering is handled automatically. Animation poses
-    are not adapted to a different skeleton. Clip SequenceNames retain
-    the authored glTF names or get overwritten by the provided sequence_names mapping.
+    Bone counts, names and direct parent relationships must match.
+    Reference poses may differ, but sampled local poses are
+    not retargeted or corrected. SequenceNames retain the authored glTF names.
+    ``sequence_names`` changes child UObject names, not SequenceNames.
     Skin, scene and clip names require exact, unique matches.
     Existing objects are not replaced and component playback is unchanged.
     """
-    name, outer = validate.target(name, outer)
     prepared = open_source(source).prepare_animations(
         skin=skin,
         clips=clips,
@@ -105,4 +103,4 @@ def load_into_animation(  # noqa: PLR0913
         sample_rate=sample_rate,
         umodel=umodel,
     )
-    return prepared.load_into(validate.object_path(path), mesh=mesh)
+    return prepared.load_into(path, mesh=mesh)

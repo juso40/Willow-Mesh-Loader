@@ -203,6 +203,40 @@ def load_into_gestalt(  # noqa: PLR0913
     ).load_into(path)
 
 
+def update_gestalt(  # noqa: PLR0913
+    source: str | Path,
+    path: str,
+    *,
+    scene: str,
+    nodes: Sequence[str] | None = None,
+    material: str | None = None,
+    materials: MaterialMapping | None = None,
+    scale: float = DEFAULT_SCALE,
+    umodel: bool = True,
+) -> GestaltAsset:
+    """Replace matching named fragments and refresh already assembled components.
+
+    The path identifies a GestaltSkeletalMeshDefinition. Unknown exact names
+    are refused and omitted fragments remain. Existing material assignments
+    are retained unless material or materials supplies incoming assignments.
+    Current part selections, sockets, accessory matrices and animation state
+    remain intact. The operation requires a compatible skeleton, an exclusive
+    master and one CPU-readable LOD0. A sidecar is unnecessary.
+    """
+    return (
+        open_source(source)
+        .prepare_gestalt_parts(
+            scene=scene,
+            nodes=nodes,
+            material=DEFAULT_MATERIAL if material is None else material,
+            materials=materials,
+            scale=scale,
+            umodel=umodel,
+        )
+        .update_into(path, preserve_materials=material is None and materials is None)
+    )
+
+
 def append_gestalt(  # noqa: PLR0913
     source: str | Path,
     path: str,

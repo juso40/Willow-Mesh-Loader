@@ -58,8 +58,8 @@ def construct(class_name: str, outer: UObject, name: str) -> UObject:
 def clone(template: UObject, outer: UObject, *, name: str | None = None) -> UObject:
     """Clone a loaded UObject under a new outer with the shared keep-alive flags.
 
-    An explicit name uses the new-object identifier policy. An inherited native
-    name is preserved, including names outside that authoring policy.
+    An explicit name uses the engine object-name restrictions. An inherited native
+    name is preserved without revalidating the original asset's name.
     """
     if name is not None:
         validate.object_name(name)

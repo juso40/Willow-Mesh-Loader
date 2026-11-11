@@ -1,6 +1,6 @@
 [project]
 name = "meshloader"
-version = "0.1"
+version = "1.0"
 authors = [{ name = "juso" }]
 description = """\
 Runtime glTF/GLB loading for Borderlands 2: static meshes, skeletal meshes, animations and Gestalt assets

@@ -49,7 +49,6 @@ def load(  # noqa: PLR0913
     ``material`` supplies unmapped slots. ``umodel=True`` selects PSK-workflow
     bone frames. False preserves authored glTF frames.
     """
-    name, outer = validate.target(name, outer)
     prepared = open_source(source).prepare_mesh(
         node=node,
         scene=scene,
@@ -107,7 +106,6 @@ def replace(  # noqa: PLR0913
     scene: str,
 ) -> UObject:
     """Prepare geometry and replace an existing mesh under its native restrictions."""
-    path = validate.object_path(path)
     prepared = open_source(source).prepare_mesh(
         node=node,
         scene=scene,

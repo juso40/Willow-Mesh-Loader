@@ -1,0 +1,13 @@
+[package]
+name = "py-meshloader"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+mesh-runtime.workspace = true
+mesh-import.workspace = true
+pyo3.workspace = true
+pyo3-stub-gen.workspace = true
+
+[lints]
+workspace = true

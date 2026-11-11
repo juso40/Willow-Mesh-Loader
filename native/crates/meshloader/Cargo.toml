@@ -1,0 +1,16 @@
+[package]
+name = "meshloader"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "_meshloader"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+py-meshloader.workspace = true
+pyo3.workspace = true
+pyo3-stub-gen.workspace = true
+
+[lints]
+workspace = true

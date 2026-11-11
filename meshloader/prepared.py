@@ -106,7 +106,7 @@ class PreparedAnimationSet:
         return self._native.warnings
 
     def check_mesh(self, mesh: str | UObject) -> None:
-        """Check a loaded target skeleton before constructing animation objects."""
+        """Check target bone counts, names and parents."""
         self._native.check_mesh(objects.path(mesh))
 
     def populate_new(
@@ -252,6 +252,19 @@ class PreparedGestalt:
         definition.GestaltSocketMappings = mappings
         definition.GestaltAccessoryNames = accessories
         return GestaltAsset(mesh, definition)
+
+    def update_into(self, path: str, *, preserve_materials: bool = True) -> GestaltAsset:
+        """Replace existing named fragments and refresh current components without changing selections.
+
+        Names match exactly. Unknown names are refused and omitted fragments remain.
+        Materials stay assigned to their existing slots by default. Disabling
+        preservation adds the prepared material assignments in fresh slots.
+        Shared masters, incompatible skeletons and multiple LODs are refused.
+        The operation has no automatic rollback.
+        """
+        definition = unrealsdk.find_object("GestaltSkeletalMeshDefinition", validate.object_path(path))
+        outcome = self._native.update_gestalt(objects.path(definition), preserve_materials=preserve_materials)
+        return GestaltAsset(objects.finish(outcome, "SkeletalMesh"), definition)
 
     def append_into(self, path: str) -> GestaltAsset:
         """Append new named fragments to the current master without moving existing ranges.
