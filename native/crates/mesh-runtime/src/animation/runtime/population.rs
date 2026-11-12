@@ -22,10 +22,12 @@ pub(in crate::animation) fn populate_new(
     prepared: &PreparedAnimations,
     path: &str,
     sequence_paths: &[&str],
-    mesh: &str,
+    mesh: Option<&str>,
 ) -> Result<String> {
-    let bones = crate::skeletal::get_reference_skeleton(mesh)?;
-    let order = prepared.bind(&bones)?;
+    let target = mesh
+        .map(crate::skeletal::get_reference_skeleton)
+        .transpose()?;
+    let (bones, order) = prepared.track_layout(target.as_deref())?;
     let encoded = prepared
         .clips
         .iter()

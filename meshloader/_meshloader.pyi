@@ -262,9 +262,10 @@ class PreparedAnimationSet:
         Checks target bone counts, names and direct parents before object construction.
         Reference poses may differ without correction of sampled local poses.
         """
-    def populate_new(self, path: builtins.str, sequences: typing.Sequence[builtins.str], mesh: builtins.str) -> AnimationOutcome:
+    def populate_new(self, path: builtins.str, sequences: typing.Sequence[builtins.str], mesh: typing.Optional[builtins.str] = None) -> AnimationOutcome:
         r"""
-        Populates an empty AnimSet and its empty children in prepared document order.
+        Populates an empty AnimSet and its empty children in prepared clip order.
+        Tracks use source bone order unless an explicit mesh supplies a validated target order.
         """
     def load_into(self, path: builtins.str, mesh: builtins.str) -> AnimationOutcome:
         r"""

@@ -140,13 +140,12 @@ faces without a material, equivalent to `default` in a manifest.
 
 #### Animations
 
-Load named clips into a new `AnimSet` using a mesh as the skeleton reference:
+Load named clips into a new `AnimSet` using the selected GLB skin as the skeleton reference:
 
 ```python
 animations = meshloader.load_animations(
     source,
     "CustomAnimations",
-    mesh=body,
     skin="BodyRig",
     scene="Scene",
     clips=["Run", "Wave"],
@@ -158,10 +157,18 @@ The source needs a skin and joints, but does not need mesh geometry. Skin, scene
 and clip selectors are exact, case-sensitive names. `clips` must be nonempty and
 distinct. Loading does not attach the AnimSet or start playback.
 
-Animations are absolute translation/rotation tracks.
-The preparation reference must have the same bone count, exact names and direct
-parents. Bone order may differ. Reference poses may differ too, but imported
-local samples are not corrected for those differences.
+Animations are absolute translation/rotation tracks. By default, the new
+AnimSet uses the selected source skin's bone names and order. The resulting AnimSet
+can be attached to a compatible component, where UE3 links tracks by bone name.
+Extra mesh bones do not receive authored tracks from that set. Name linking
+does not retarget incompatible hierarchies, rest axes or proportions.
+
+An optional `mesh=body` preserves explicit target-order binding. That reference
+must have the same bone count, exact names and direct parents. Bone order and
+reference poses may differ, but imported local samples remain unchanged.
+`PreparedAnimationSet.create()` and `.populate_new()` also accept an omitted
+mesh. Existing-sequence replacement still requires `mesh=` and preserves the
+owning AnimSet's track layout.
 
 #### Gestalt Weapons
 

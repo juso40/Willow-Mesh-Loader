@@ -386,12 +386,14 @@ impl PreparedAnimationSet {
         self.data.check_mesh(mesh).map_err(error)
     }
 
-    /// Populates an empty AnimSet and its empty children in prepared document order.
+    /// Populates an empty AnimSet and its empty children in prepared clip order.
+    /// Tracks use source bone order unless an explicit mesh supplies a validated target order.
+    #[pyo3(signature = (path, sequences, mesh=None))]
     pub fn populate_new(
         &self,
         path: &str,
         sequences: Vec<String>,
-        mesh: &str,
+        mesh: Option<&str>,
     ) -> PyResult<AnimationOutcome> {
         let sequences: Vec<_> = sequences.iter().map(String::as_str).collect();
         let path = self

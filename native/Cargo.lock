@@ -348,7 +348,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "mesh-import"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "gltf",
  "mikktspace",
@@ -358,7 +358,7 @@ dependencies = [
 
 [[package]]
 name = "mesh-runtime"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "serde",
  "unrealsdk-rs",
@@ -366,7 +366,7 @@ dependencies = [
 
 [[package]]
 name = "meshloader"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "py-meshloader",
  "pyo3",
@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "py-meshloader"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "mesh-import",
  "mesh-runtime",

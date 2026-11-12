@@ -114,12 +114,13 @@ class PreparedAnimationSet:
         anim_set: str | UObject,
         sequences: Mapping[str, str | UObject],
         *,
-        mesh: str | UObject,
+        mesh: str | UObject | None = None,
     ) -> UObject:
         """Populate an empty AnimSet and its distinct empty child sequences.
 
-        Sequence keys cover exactly the prepared clip names. This installs tracks,
-        codecs and lookup caches without attaching or playing the set.
+        Sequence keys cover exactly the prepared clip names. Tracks use the source
+        skin's bone order unless an explicit matching mesh supplies another order.
+        This installs tracks, codecs and lookup caches without attaching or playing the set.
         """
         clips = self.clips
         names = {clip.name for clip in clips}
@@ -128,21 +129,23 @@ class PreparedAnimationSet:
         if set(sequences) != names:
             raise ValueError("sequences must map every prepared clip name to exactly one destination")
         paths = [objects.path(sequences[clip.name]) for clip in clips]
-        outcome = self._native.populate_new(objects.path(anim_set), paths, objects.path(mesh))
+        mesh_path = None if mesh is None else objects.path(mesh)
+        outcome = self._native.populate_new(objects.path(anim_set), paths, mesh_path)
         return objects.finish(outcome, "AnimSet")
 
     def create(
         self,
         name: str,
         *,
-        mesh: str | UObject,
+        mesh: str | UObject | None = None,
         outer: str | None = None,
         sequence_names: Mapping[str, str] | None = None,
     ) -> UObject:
         """Construct an AnimSet and selected child sequences, then populate them.
 
-        Optional child UObject names are keyed by prepared clip name. Unmapped
-        clips retain their authored names. SequenceName always retains the clip name.
+        Tracks use the source skin's bone names and order unless an explicit mesh
+        supplies a validated target order. Optional child UObject names are keyed by
+        prepared clip name. SequenceName always retains the clip name.
         """
         name, outer = validate.target(name, outer)
         clips = self.clips
@@ -155,7 +158,8 @@ class PreparedAnimationSet:
             validate.object_name(child_name)
         if len({value.casefold() for value in names.values()}) != len(names):
             raise ValueError("child sequence UObject names must be distinct")
-        self.check_mesh(mesh)
+        if mesh is not None:
+            self.check_mesh(mesh)
         anim_set = objects.construct("AnimSet", objects.package(outer), name)
         sequences = {
             clip_name: objects.construct("AnimSequence", anim_set, child) for clip_name, child in names.items()

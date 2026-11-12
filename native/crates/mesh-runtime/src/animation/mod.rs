@@ -54,8 +54,14 @@ impl PreparedAnimations {
     }
 
     /// Populates an empty Python-constructed AnimSet and its empty child sequences.
+    /// Tracks retain the source skeleton order unless a mesh supplies a validated target order.
     /// Sequence paths follow the prepared clip order and each child belongs to that set.
-    pub fn populate_new(&self, path: &str, sequences: &[&str], mesh: &str) -> Result<String> {
+    pub fn populate_new(
+        &self,
+        path: &str,
+        sequences: &[&str],
+        mesh: Option<&str>,
+    ) -> Result<String> {
         if sequences.len() != self.clips.len() {
             return Err(Error(
                 "animation destination count differs from the prepared clip count".into(),
@@ -73,6 +79,16 @@ impl PreparedAnimations {
             ));
         }
         runtime::replace(self, path, mesh)
+    }
+
+    fn track_layout<'a>(
+        &'a self,
+        target: Option<&'a [ReferenceBone]>,
+    ) -> Result<(&'a [ReferenceBone], Vec<usize>)> {
+        match target {
+            Some(bones) => Ok((bones, self.bind(bones)?)),
+            None => Ok((&self.bones, (0..self.bones.len()).collect())),
+        }
     }
 
     fn bind(&self, target: &[ReferenceBone]) -> Result<Vec<usize>> {

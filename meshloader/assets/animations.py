@@ -45,7 +45,7 @@ def load_animations(  # noqa: PLR0913
     source: str | Path | Source,
     name: str,
     *,
-    mesh: str | UObject,
+    mesh: str | UObject | None = None,
     outer: str | None = None,
     scale: float = DEFAULT_SCALE,
     sample_rate: float = DEFAULT_SAMPLE_RATE,
@@ -57,9 +57,10 @@ def load_animations(  # noqa: PLR0913
 ) -> UObject:
     """Create an AnimSet and populate selected clips.
 
-    Bone counts, names and direct parent relationships must match.
-    Reference poses may differ, but sampled local poses are
-    not retargeted or corrected. SequenceNames retain the authored glTF names.
+    Tracks use the selected source skin's bone names and order by default.
+    An explicit mesh requires matching bone counts, names and direct parents,
+    then supplies the track order. Reference poses may differ, but sampled local
+    poses are not retargeted or corrected. SequenceNames retain the authored glTF names.
     ``sequence_names`` changes child UObject names, not SequenceNames.
     Skin, scene and clip names require exact, unique matches.
     Existing objects are not replaced and component playback is unchanged.
